@@ -1,5 +1,5 @@
 # Linguofy.ai
-    - Team member:
+    Team member:
     - Minh Tai Le 
     - Phuc Le
     - Ishan Kiran Girgaonkar
