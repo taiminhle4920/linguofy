@@ -5,14 +5,19 @@
     - Ishan Kiran Girgaonkar
     - Kevin Thomas
 
-## To run frontend:
+## Frontend:
 ### Install dependencies:
-```
-npm install
-```
-### Run frontend
-```
-npm run dev
-```
+
+    npm install
+
+### Run frontend:
+
+    npm run dev
+
+
+## Backend
+### Install dependencies:
+
+### Run backend:
 
 
