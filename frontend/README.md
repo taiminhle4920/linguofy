@@ -1,11 +1,17 @@
-# To run frontend:
-## Install dependencies:
-'''
+# Linguofy.ai
+    - Minh Tai Le 
+    - Phuc Le
+    - Ishan Kiran Girgaonkar
+    - Kevin Thomas
+
+## To run frontend:
+### Install dependencies:
+```
 npm install
-'''
-## Run frontend
-'''
+```
+### Run frontend
+```
 npm run dev
-'''
+```
 
 
