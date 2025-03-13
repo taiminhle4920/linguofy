@@ -15,12 +15,39 @@ const LandingPage = () => {
     const mediaStreamRef = useRef(null);
     const animationFrameRef = useRef(null);
     const mediaRecorderRef = useRef(null);
-    const audioChunksRef = useRef([]);
+    const stopIntervalRef = useRef(null);
 
     const modelOptions = [
         { value: "custom", label: "Linguofy.ai Model" },
         { value: "whisper", label: "OpenAI Whisper" },
     ];
+
+    const sendAudioToServer = async (audioBlob, extension) => {
+        console.log("Sending blob to server, size:", audioBlob.size, "Extension:", extension);
+        const formData = new FormData();
+        formData.append("file", audioBlob, `recording.${extension}`);
+
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ": ", pair[1]);
+        }
+
+        try {
+            const response = await fetch("http://127.0.0.1:5000/transcribe", {
+                method: "POST",
+                body: formData,
+            });
+            console.log("Response received from backend:", response);
+            const data = await response.json();
+            if (data.transcription) {
+                console.log("Transcription received:", data.transcription);
+                setTranscription((prev) => prev + " " + data.transcription);
+            } else {
+                console.log("No transcription in response:", data);
+            }
+        } catch (error) {
+            console.error("Error sending audio to server:", error);
+        }
+    };
 
     useEffect(() => {
         const initializeAudio = async () => {
@@ -28,79 +55,105 @@ const LandingPage = () => {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaStreamRef.current = stream;
                 setMicrophoneAllowed(true);
-
+                console.log("Microphone access granted.");
 
                 audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
                 analyserRef.current = audioContextRef.current.createAnalyser();
                 analyserRef.current.fftSize = 2048;
 
-
                 const source = audioContextRef.current.createMediaStreamSource(stream);
                 source.connect(analyserRef.current);
 
+                let options = {};
+                if (MediaRecorder.isTypeSupported("audio/webm;codecs=opus")) {
+                    options.mimeType = "audio/webm;codecs=opus";
+                } else {
+                    console.warn("audio/webm;codecs=opus not supported; using default");
+                }
+                mediaRecorderRef.current = new MediaRecorder(stream, options);
+                console.log("MediaRecorder created with MIME type:", mediaRecorderRef.current.mimeType);
 
-                mediaRecorderRef.current = new MediaRecorder(stream);
-                audioChunksRef.current = [];
-
-                mediaRecorderRef.current.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        audioChunksRef.current.push(event.data);
+                mediaRecorderRef.current.ondataavailable = async (event) => {
+                    console.log("ondataavailable event fired.", event);
+                    if (event.data && event.data.size > 0) {
+                        const mimeType = mediaRecorderRef.current.mimeType || "audio/webm";
+                        const extension = mimeType.includes("webm") ? "webm" : "wav";
+                        console.log("Blob received. MIME type:", mimeType, "Size:", event.data.size);
+                        await sendAudioToServer(event.data, extension);
+                    } else {
+                        console.warn("Received empty data blob.");
                     }
                 };
 
-                mediaRecorderRef.current.start(100);
-                setIsRecording(true);
+               
+                mediaRecorderRef.current.onstop = () => {
+                    console.log("MediaRecorder stopped.");
+                    if (isRecording) {
+                        console.log("Restarting MediaRecorder...");
+                        mediaRecorderRef.current.start();
+                    }
+                };
 
+                
+                mediaRecorderRef.current.start();
+                setIsRecording(true);
+                console.log("MediaRecorder started.");
+
+                stopIntervalRef.current = setInterval(() => {
+                    if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+                        console.log("Stopping MediaRecorder to capture chunk...");
+                        mediaRecorderRef.current.stop();
+                    }
+                }, 5000);
 
                 startVisualization();
             } catch (error) {
-                console.error("Microphone access denied:", error);
+                console.error("Error during audio initialization:", error);
                 alert("Microphone access is required for this app to work.");
             }
         };
 
         const startVisualization = () => {
             const canvas = canvasRef.current;
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext("2d");
             const analyser = analyserRef.current;
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
 
             const draw = () => {
                 animationFrameRef.current = requestAnimationFrame(draw);
                 analyser.getByteTimeDomainData(dataArray);
-                ctx.fillStyle = '#2a2a2a';
+                ctx.fillStyle = "#2a2a2a";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.lineWidth = 2;
-                ctx.strokeStyle = '#2196f3';  
+                ctx.strokeStyle = "#2196f3";
                 ctx.beginPath();
-
                 const sliceWidth = canvas.width / dataArray.length;
                 let x = 0;
-
                 for (let i = 0; i < dataArray.length; i++) {
                     const v = dataArray[i] / 128.0;
                     const y = (v * canvas.height) / 2;
-
                     if (i === 0) {
                         ctx.moveTo(x, y);
                     } else {
                         ctx.lineTo(x, y);
                     }
-
                     x += sliceWidth;
                 }
-
                 ctx.lineTo(canvas.width, canvas.height / 2);
                 ctx.stroke();
             };
-
             draw();
         };
 
         initializeAudio();
 
-        
         return () => {
+            if (stopIntervalRef.current) {
+                clearInterval(stopIntervalRef.current);
+            }
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+                mediaRecorderRef.current.stop();
+            }
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
@@ -108,29 +161,22 @@ const LandingPage = () => {
                 audioContextRef.current.close();
             }
             if (mediaStreamRef.current) {
-                mediaStreamRef.current.getTracks().forEach(track => track.stop());
-            }
-            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-                mediaRecorderRef.current.stop();
+                mediaStreamRef.current.getTracks().forEach((track) => track.stop());
             }
         };
-    }, []);
+    }, [isRecording]);
 
     useEffect(() => {
         const updateCanvasSize = () => {
             const canvas = canvasRef.current;
             if (canvas) {
-                const width = canvas.offsetWidth;
-                const height = canvas.offsetHeight;
-                canvas.width = width;
-                canvas.height = height;
+                canvas.width = canvas.offsetWidth;
+                canvas.height = canvas.offsetHeight;
             }
         };
-
-        window.addEventListener('resize', updateCanvasSize);
         updateCanvasSize();
-
-        return () => window.removeEventListener('resize', updateCanvasSize);
+        window.addEventListener("resize", updateCanvasSize);
+        return () => window.removeEventListener("resize", updateCanvasSize);
     }, []);
 
     return (
@@ -146,7 +192,7 @@ const LandingPage = () => {
                         onChange={(e) => setSelectedModel(e.target.value)}
                         className="model-select"
                     >
-                        {modelOptions.map(option => (
+                        {modelOptions.map((option) => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
                             </option>
@@ -156,10 +202,7 @@ const LandingPage = () => {
             </div>
 
             <div className="visualizer-container">
-                <canvas
-                    ref={canvasRef}
-                    className="audio-visualizer"
-                />
+                <canvas ref={canvasRef} className="audio-visualizer" />
             </div>
 
             <div className="bottomSection">
@@ -198,3 +241,5 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+
