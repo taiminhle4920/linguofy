@@ -104,7 +104,7 @@ const LandingPage = () => {
                         console.log("Stopping MediaRecorder to capture chunk...");
                         mediaRecorderRef.current.stop();
                     }
-                }, 5000);
+                }, 3000);
 
                 startVisualization();
             } catch (error) {
