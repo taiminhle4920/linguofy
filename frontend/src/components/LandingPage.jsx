@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import logo from "../assets/logo.svg";
 import "./LandingPage.css";
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -15,6 +16,8 @@ const LandingPage = () => {
     const animationFrameRef = useRef(null);
     const mediaRecorderRef = useRef(null);
     const stopIntervalRef = useRef(null);
+
+    const navigate = useNavigate();
 
     const modelOptions = [
         { value: "custom", label: "Linguofy.ai Model" },
@@ -178,7 +181,12 @@ const LandingPage = () => {
         return () => window.removeEventListener("resize", updateCanvasSize);
     }, []);
 
-    
+    const handleLogout = () => {
+        sessionStorage.removeItem("userID");
+        navigate("/")
+        window.location.reload();
+    };
+
     const handleClearTranscription = () => {
         setTranscription("");
     };
@@ -229,6 +237,9 @@ const LandingPage = () => {
                         ))}
                     </select>
                 </div>
+                <button onClick={handleLogout} className="actionButton logout-button">
+                    Logout
+                </button>
             </div>
 
             <div className="visualizer-container">

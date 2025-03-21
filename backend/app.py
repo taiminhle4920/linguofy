@@ -108,6 +108,8 @@ from flask_cors import CORS
 import os
 from google import genai
 from dotenv import load_dotenv
+from flask_bcrypt import Bcrypt
+from pymongo import MongoClient
 
 load_dotenv()
 google_key = os.getenv("GOOGLE_KEY")
@@ -116,6 +118,16 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 
 googleClient = genai.Client(api_key=google_key)
 
+# from userRoutes import userRoutes
+# app.register_blueprint(userRoutes, url_prefix='/user')
+
+MONGOUSER = os.getenv("MONGOUSER")
+MONGOPASS = os.getenv("MONGOPASS")
+mongoURL = f"mongodb+srv://{MONGOUSER}:{MONGOPASS}@cluster0.v1pdg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+bcrypt = Bcrypt()
+client = MongoClient(mongoURL)
+db = client["LinguofyDB"]
+users_collection = db["User"]
 
 @app.after_request
 def add_cors_headers(response):
@@ -126,6 +138,42 @@ def add_cors_headers(response):
                          "GET,POST,PUT,DELETE,OPTIONS")
     return response
 
+@app.route('/', methods=['GET'])
+def test():
+    # client.server_info()
+    return "app.py is working"
+
+@app.route("/signup", methods=['POST', 'OPTION'])
+def signup():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+    data = request.get_json() or {}
+    email = data.get("email")
+    password = data.get("password")
+
+    # Check if user already exists
+    if users_collection.find_one({"email": email}):
+        return jsonify({"error": "User already exists"}), 400
+
+    hashed_pw = bcrypt.generate_password_hash(password).decode("utf-8")
+    users_collection.insert_one({"email": email, "password": hashed_pw})
+
+    return jsonify({"message": "User created successfully"}), 201
+
+@app.route("/login", methods=['POST', 'OPTION'])
+def login():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+    data = request.get_json() or {}
+    email = data.get("email")
+    password = data.get("password")
+
+    # Check if user exists
+    user = users_collection.find_one({"email": email})
+    if not user or not bcrypt.check_password_hash(user["password"], password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    return jsonify({"message": "Login successful", "userID": str(user["_id"])}), 200
 
 def read_audio_file(file):
     if file.filename.lower().endswith('.webm'):
