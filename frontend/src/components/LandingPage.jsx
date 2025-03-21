@@ -5,7 +5,6 @@ import "./LandingPage.css";
 const LandingPage = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [transcription, setTranscription] = useState("");
-    const [translation, setTranslation] = useState("");
     const [microphoneAllowed, setMicrophoneAllowed] = useState(false);
     const [selectedModel, setSelectedModel] = useState("custom");
 
@@ -85,7 +84,7 @@ const LandingPage = () => {
                     }
                 };
 
-               
+
                 mediaRecorderRef.current.onstop = () => {
                     console.log("MediaRecorder stopped.");
                     if (isRecording) {
@@ -94,7 +93,7 @@ const LandingPage = () => {
                     }
                 };
 
-                
+
                 mediaRecorderRef.current.start();
                 setIsRecording(true);
                 console.log("MediaRecorder started.");
@@ -179,6 +178,37 @@ const LandingPage = () => {
         return () => window.removeEventListener("resize", updateCanvasSize);
     }, []);
 
+    
+    const handleClearTranscription = () => {
+        setTranscription("");
+    };
+
+    const handleSaveTranscription = async () => {
+        try {
+            const userId = sessionStorage.getItem('user_id');
+            const response = await fetch("http://127.0.0.1:5000/save_transcription", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    transcription: transcription,
+                    user_id: userId
+                }),
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to save transcription');
+            }
+            
+            const data = await response.json();
+            alert("Transcription saved successfully!");
+        } catch (error) {
+            console.error("Error saving transcription:", error);
+            alert("Failed to save transcription");
+        }
+    };
+
     return (
         <div className="container">
             <div className="header">
@@ -206,7 +236,7 @@ const LandingPage = () => {
             </div>
 
             <div className="bottomSection">
-                <div className="box">
+                <div className="box transcription-box">
                     <h3>Transcription</h3>
                     <textarea
                         className="textArea"
@@ -214,26 +244,20 @@ const LandingPage = () => {
                         readOnly
                         placeholder="Transcription will appear here..."
                     />
-                </div>
-
-                <button
-                    onClick={() => {
-                        const translatedText = `Translated: ${transcription}`;
-                        setTranslation(translatedText);
-                    }}
-                    className="translateButton"
-                >
-                    Translate
-                </button>
-
-                <div className="box">
-                    <h3>Translation</h3>
-                    <textarea
-                        className="textArea"
-                        value={translation}
-                        readOnly
-                        placeholder="Translation will appear here..."
-                    />
+                    <div className="button-container">
+                        <button
+                            onClick={handleClearTranscription}
+                            className="actionButton clearButton"
+                        >
+                            Clear Transcription
+                        </button>
+                        <button
+                            onClick={handleSaveTranscription}
+                            className="actionButton saveButton"
+                        >
+                            Save Transcription
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -241,5 +265,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
-

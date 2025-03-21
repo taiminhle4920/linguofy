@@ -106,9 +106,15 @@ import whisper
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+from google import genai
+from dotenv import load_dotenv
 
+load_dotenv()
+google_key = os.getenv("GOOGLE_KEY")
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
+
+googleClient = genai.Client(api_key=google_key)
 
 
 @app.after_request
@@ -163,9 +169,41 @@ def transcribe():
 
     result = whisper_model.transcribe(temp_wav_path)
     transcription = result["text"]
-
+    
     return jsonify({"transcription": transcription})
 
+
+def get_summary(text):
+    response = googleClient.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"{text}/n give a summary about this coversation, remove weird word, such as random you, response with the format: Transcription: ...  Summary: ... . Don't add any extra word"
+    )
+    print(response.text)
+    return response.text
+
+@app.route('/save_transcription', methods=['POST', 'OPTION'])
+def save_transcription():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+    data = request.get_json() or {}
+    transcribed_text = data.get("transcription")
+    #transcribed_text = "Hello everyone, this is a test transcription. We had a detailed discussion on various topics, but then a weird word randomyou popped up unexpectedly in the middle.  Overall, the conversation was engaging and insightful."
+
+    if not transcribed_text:
+        return jsonify({"error": "No transcription provided"}), 400
+
+    try:
+        with open("transcription.txt", "w") as f:
+            f.write(transcribed_text)
+    except Exception as e:
+        return jsonify({"error": f"Error saving transcription: {str(e)}"}), 500
+
+
+    summary = get_summary(transcribed_text)
+    print('DONE saving')
+    return jsonify({
+        "summary": summary
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
