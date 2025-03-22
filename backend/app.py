@@ -5,6 +5,9 @@ import soundfile as sf
 import numpy as np
 import torch
 import whisper
+from faster_whisper import WhisperModel
+from datetime import datetime
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -76,6 +79,55 @@ def login():
 
     return jsonify({"message": "Login successful", "userID": str(user["_id"])}), 200
 
+# def read_audio_file(file):
+#     if file.filename.lower().endswith('.webm'):
+#         seg = AudioSegment.from_file(file, format="webm")
+#         wav_io = io.BytesIO()
+#         seg.export(wav_io, format="wav")
+#         wav_io.seek(0)
+#         return sf.read(wav_io)
+#     return sf.read(file)
+
+
+# TARGET_RATE = 16000
+
+# # Load Whisper model
+# whisper_model = whisper.load_model("base")
+
+
+# @app.route('/transcribe', methods=['POST', 'OPTIONS'])
+# def transcribe():
+#     if request.method == "OPTIONS":
+#         return add_cors_headers(jsonify({"status": "ok"}))
+
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file provided"}), 400
+
+#     file = request.files['file']
+#     try:
+#         audio_data, sample_rate = read_audio_file(file)
+#     except Exception as e:
+#         return jsonify({"error": f"Error reading audio file: {str(e)}"}), 400
+
+#     if sample_rate != TARGET_RATE:
+#         audio_data = librosa.resample(
+#             audio_data, orig_sr=sample_rate, target_sr=TARGET_RATE)
+
+#     if len(audio_data.shape) > 1:
+#         audio_data = audio_data[:, 0]
+
+#     temp_wav_path = "temp_audio.wav"
+#     sf.write(temp_wav_path, audio_data, TARGET_RATE)
+
+#     result = whisper_model.transcribe(temp_wav_path)
+#     transcription = result["text"]
+    
+#     return jsonify({"transcription": transcription})
+
+
+TARGET_RATE = 16000
+
+
 def read_audio_file(file):
     if file.filename.lower().endswith('.webm'):
         seg = AudioSegment.from_file(file, format="webm")
@@ -86,10 +138,11 @@ def read_audio_file(file):
     return sf.read(file)
 
 
-TARGET_RATE = 16000
+device = "cuda" if torch.cuda.is_available() else "cpu"
+compute_type = "float16" if device == "cuda" else "int8"
 
-# Load Whisper model
-whisper_model = whisper.load_model("base")
+
+model = WhisperModel("base", device=device, compute_type=compute_type)
 
 
 @app.route('/transcribe', methods=['POST', 'OPTIONS'])
@@ -116,16 +169,18 @@ def transcribe():
     temp_wav_path = "temp_audio.wav"
     sf.write(temp_wav_path, audio_data, TARGET_RATE)
 
-    result = whisper_model.transcribe(temp_wav_path)
-    transcription = result["text"]
-    
-    return jsonify({"transcription": transcription})
+    segments, info = model.transcribe(
+        temp_wav_path, beam_size=5, vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
+    transcription = " ".join([segment.text for segment in segments]).strip()
 
+    if device == "cuda":
+        torch.cuda.empty_cache()
+    return jsonify({"transcription": transcription})
 
 def get_summary(text):
     response = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"{text}/n give a summary about this coversation, remove weird word, such as random you, response with the format: Transcription: ...  Summary: ... . Don't add any extra word"
+        contents=f"{text}/n give a summary about this coversation, remove weird word, such as: you, thank you for watching the video,  ..., make the conversation make more sense. Response with the format: Transcription: ...  Summary: ... . Don't add any extra word"
     )
 
     return response.text
@@ -139,8 +194,7 @@ def save_transcription():
     email = data.get("email") 
     print('email', email)
 
-    #transcribed_text = "Hello everyone, this is a test transcription. We had a detailed discussion on various topics, but then a weird word randomyou popped up unexpectedly in the middle.  Overall, the conversation was engaging and insightful."
-
+     
     if not transcribed_text:
         return jsonify({"error": "No transcription provided"}), 400
 
@@ -148,24 +202,55 @@ def save_transcription():
         return jsonify({"error": "No email provided"}), 400
 
     
-
+    timestamp = datetime.now().isoformat()
     summary = get_summary(transcribed_text)
     user = users_collection.find_one({"email": email})
     if user:
-        print('in here')
-        if "history" in user and isinstance(user["history"], list):
-            history = user["history"]
-            new_history = [summary] + history
-            print(new_history)
-            users_collection.update_one({"email": email}, {
-                                        "$set": {"history": new_history}})
-        else:
-            print('new history')
-            users_collection.update_one({"email": email}, {
-                                        "$set": {"history": [summary]}})
-    
+        # if "history" in user and isinstance(user["history"], list):
+        #     history = user["history"]
+        #     new_history = [summary] + history
+        #     users_collection.update_one({"email": email}, {
+        #                                 "$set": {"history": new_history}})
+        # else:
+        #     print('new history')
+        #     users_collection.update_one({"email": email}, {
+        #                                 "$set": {"history": [summary]}})
 
+            # If history already exists and is a dict, add a new key-value pair
+        if "history" in user and isinstance(user["history"], dict):
+            user["history"][timestamp] = summary
+            users_collection.update_one(
+                {"email": email}, {"$set": {"history": user["history"]}})
+            print(user["history"])
+        else:
+            # Initialize history as a dict with the current timestamp and summary
+            users_collection.update_one(
+                {"email": email}, {"$set": {"history": {timestamp: summary}}})
+    
     return jsonify({"Summary":summary}), 200
 
+
+@app.route('/translate', methods=['POST', 'OPTIONS'])
+def translate():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+    data = request.get_json() or {}
+    transcribed_text = data.get("transcription")
+    
+    if not transcribed_text:
+        return jsonify({"error": "No transcription provided"}), 400
+
+    translation = googleClient.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"{transcribed_text}. /n Translate this to English. No extra text, just translation")
+    
+    if translation.text:
+        return jsonify({"Translation": translation.text}), 200
+    return jsonify({"Translation": "No translation avaiable"}), 400
+    
+    
+        
+    
+    
 if __name__ == '__main__':
     app.run(debug=True)
