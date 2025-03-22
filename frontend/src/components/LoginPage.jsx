@@ -16,6 +16,7 @@ const LoginPage = () => {
         try {
             const response = await axios.post("http://127.0.0.1:5000/login", { email, password });
             sessionStorage.setItem("UserID", response.data.userID);
+            sessionStorage.setItem('email', email)
             navigate("/LandingPage");
         } catch (err) {
             setError("Invalid email or password");

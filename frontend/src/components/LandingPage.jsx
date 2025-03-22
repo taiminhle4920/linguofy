@@ -193,7 +193,7 @@ const LandingPage = () => {
 
     const handleSaveTranscription = async () => {
         try {
-            const userId = sessionStorage.getItem('user_id');
+            const email = sessionStorage.getItem('email');
             const response = await fetch("http://127.0.0.1:5000/save_transcription", {
                 method: "POST",
                 headers: {
@@ -201,7 +201,7 @@ const LandingPage = () => {
                 },
                 body: JSON.stringify({
                     transcription: transcription,
-                    user_id: userId
+                    email: email
                 }),
             });
             
@@ -211,6 +211,7 @@ const LandingPage = () => {
             
             const data = await response.json();
             alert("Transcription saved successfully!");
+            setTranscription("")
         } catch (error) {
             console.error("Error saving transcription:", error);
             alert("Failed to save transcription");
@@ -224,22 +225,12 @@ const LandingPage = () => {
                     <img src={logo} alt="App Logo" className="logo" />
                     <span className="logo-text">Linguofy.ai</span>
                 </div>
-                <div className="model-selector">
-                    <select
-                        value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
-                        className="model-select"
-                    >
-                        {modelOptions.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </select>
+                <div className="logout-button-container">
+                    <button onClick={handleLogout} className="logout-button">
+                        Logout
+                    </button>
                 </div>
-                <button onClick={handleLogout} className="actionButton logout-button">
-                    Logout
-                </button>
+                
             </div>
 
             <div className="visualizer-container">
