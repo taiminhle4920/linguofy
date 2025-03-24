@@ -230,7 +230,7 @@ def save_transcription():
     return jsonify({"Summary":summary}), 200
 
 
-@app.route('/translate', methods=['POST', 'OPTIONS'])
+@app.route('/translate', methods=['POST', 'OPTION'])
 def translate():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))

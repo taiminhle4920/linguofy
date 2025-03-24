@@ -152,8 +152,19 @@
     color: white;
 }
 
+
 .saveButton:hover {
     background-color: #6200ea;
+}
+
+.translateButton {
+    background-color: #402292;
+    color: white;
+}
+
+
+.saveButton:hover {
+    background-color: #5e3992;
 }
 
 .logout-button {

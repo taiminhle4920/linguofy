@@ -190,6 +190,31 @@ const LandingPage = () => {
     const handleClearTranscription = () => {
         setTranscription("");
     };
+   
+    const handleTranslate = async () =>{
+        try {
+            const response = await fetch("http://127.0.0.1:5000/translate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    transcription: transcription,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to translate');
+            }
+
+            const data = await response.json();
+            setTranscription(data.Translation)
+            alert("Translated and reformated to English!");
+        } catch (error) {
+            console.error("Error translating:", error);
+            alert("Failed to translate!");
+        }
+    };
 
     const handleSaveTranscription = async () => {
         try {
@@ -251,14 +276,20 @@ const LandingPage = () => {
                             onClick={handleClearTranscription}
                             className="actionButton clearButton"
                         >
-                            Clear Transcription
+                            Clear
                         </button>
                         <button
                             onClick={handleSaveTranscription}
                             className="actionButton saveButton"
                         >
-                            Save Transcription
+                            Save
                         </button>
+                        <button
+                            onClick={handleTranslate}
+                            className="actionButton translateButton"
+                        >
+                                Translate
+                            </button>
                     </div>
                 </div>
             </div>
