@@ -18,6 +18,9 @@
 ## Backend
 ### Install dependencies:
 
+    pip install -r requirements.txt
+
+
 ### Run backend:
 
-
+    python3 app.py
