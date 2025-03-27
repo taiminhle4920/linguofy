@@ -3,29 +3,32 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
+    height: 100%;
 }
 
 .history-container {
     max-width: 800px;
     margin: 40px auto;
     padding: 20px;
-    background: #ffffff;
+    background:#2a2a2a;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
 
 h2 {
-    color: #333;
+    color: #00aaff;
 }
 
 .history-list {
     list-style: none;
+    color:#fff;
     padding: 0;
+    
 }
 
 .history-item {
-    background: white;
+    background: #2a2a2a;
     margin: 10px 0;
     padding: 15px;
     border-radius: 8px;

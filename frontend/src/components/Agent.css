@@ -1,18 +1,4 @@
-/* NavBar.css (example) */
-.navbar {
-    width: 100%;
-    background-color: #1a1a1a;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    box-sizing: border-box;
-}
 
-/* Agent.css */
-
-/* Reset/Global */
 html,
 body {
     margin: 0;
@@ -21,10 +7,11 @@ body {
     background-color: #1a1a1a;
     font-family: sans-serif;
 }
-
+.agent-transcription h2{
+    color:#00aaff
+}
 .agent-container {
-    /* No min-height: 100vh if you want the NavBar at the top with no huge space */
-    display: flex;
+   
     flex-direction: column;
     align-items: center;
     padding: 20px;
@@ -41,12 +28,12 @@ body {
     color: #ffffff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     margin: 20px auto;
-    /* Center horizontally with auto margin */
+    
     min-height: 200px;
-    /* Example smaller box */
+
 }
 
-/* Footer remains fixed or can be normal flow as well */
+
 .agent-footer {
     width: 100%;
     display: flex;
@@ -97,7 +84,6 @@ body {
     }
 }
 
-/* Responsive for phones */
 @media (max-width: 480px) {
     .agent-transcription {
         width: 95%;

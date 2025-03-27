@@ -6,7 +6,6 @@ const SavedTranscriptPage = () => {
     const [editing, setEditing] = useState(null);
     const [updatedText, setUpdatedText] = useState("");
 
-    // Get the logged-in user's email from session storage
     const userEmail = sessionStorage.getItem("email");
 
     useEffect(() => {

@@ -11,7 +11,10 @@ const ProtectedRoute = ({ children }) => {
     return (
         <>
             <Navbar />
-            {children}
+            <div style={{height: "calc(100vh - 80px)", overflowY: "auto" }}>
+                {children}
+            </div>
+
         </>
     );
 };

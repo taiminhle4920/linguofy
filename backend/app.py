@@ -4,10 +4,9 @@ import librosa
 import soundfile as sf
 import numpy as np
 import torch
-import whisper
 from faster_whisper import WhisperModel
 from datetime import datetime
-
+import hashlib
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -15,6 +14,8 @@ from google import genai
 from dotenv import load_dotenv
 from flask_bcrypt import Bcrypt
 from pymongo import MongoClient
+import json
+
 
 load_dotenv()
 google_key = os.getenv("GOOGLE_KEY")
@@ -22,7 +23,8 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 googleClient = genai.Client(api_key=google_key)
-
+agent_cache = {}
+CACHE_TTL = 360
 
 
 MONGOUSER = os.getenv("MONGOUSER")
@@ -78,51 +80,6 @@ def login():
         return jsonify({"error": "Invalid credentials"}), 401
 
     return jsonify({"message": "Login successful", "userID": str(user["_id"])}), 200
-
-# def read_audio_file(file):
-#     if file.filename.lower().endswith('.webm'):
-#         seg = AudioSegment.from_file(file, format="webm")
-#         wav_io = io.BytesIO()
-#         seg.export(wav_io, format="wav")
-#         wav_io.seek(0)
-#         return sf.read(wav_io)
-#     return sf.read(file)
-
-
-# TARGET_RATE = 16000
-
-# # Load Whisper model
-# whisper_model = whisper.load_model("base")
-
-
-# @app.route('/transcribe', methods=['POST', 'OPTIONS'])
-# def transcribe():
-#     if request.method == "OPTIONS":
-#         return add_cors_headers(jsonify({"status": "ok"}))
-
-#     if 'file' not in request.files:
-#         return jsonify({"error": "No file provided"}), 400
-
-#     file = request.files['file']
-#     try:
-#         audio_data, sample_rate = read_audio_file(file)
-#     except Exception as e:
-#         return jsonify({"error": f"Error reading audio file: {str(e)}"}), 400
-
-#     if sample_rate != TARGET_RATE:
-#         audio_data = librosa.resample(
-#             audio_data, orig_sr=sample_rate, target_sr=TARGET_RATE)
-
-#     if len(audio_data.shape) > 1:
-#         audio_data = audio_data[:, 0]
-
-#     temp_wav_path = "temp_audio.wav"
-#     sf.write(temp_wav_path, audio_data, TARGET_RATE)
-
-#     result = whisper_model.transcribe(temp_wav_path)
-#     transcription = result["text"]
-    
-#     return jsonify({"transcription": transcription})
 
 
 TARGET_RATE = 16000
@@ -307,18 +264,32 @@ def agent():
 
     temp_wav_path = "temp_audio.wav"
     sf.write(temp_wav_path, audio_data, TARGET_RATE)
-
+    
     segments, info = model.transcribe(
         temp_wav_path, beam_size=5, vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
     transcription = " ".join([segment.text for segment in segments]).strip()
+
+    cache_key = hashlib.md5(transcription.encode("utf-8")).hexdigest()
+    current_time = datetime.now().isoformat()
     
+    if cache_key in agent_cache:
+        cached_answer, timestamp = agent_cache[cache_key]
+        if current_time - timestamp < CACHE_TTL:
+            print("Returning cached answer")
+        else:
+            del agent_cache[cache_key]
+    
+    cache_data_str = json.dumps(agent_cache) 
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"{transcription}. /n Answer the question. If you can't understand the question or the question is not clear, ask the question again."
+        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Answer the question using cached data. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't need to include the cache information. Answer the question directly.",
+
     )
 
 
+
     if answer.text:
+        agent_cache[cache_key] = (answer.text, current_time)
         return jsonify({"Translation": answer.text}), 200
     return jsonify({"Answer": "Unable to provide the answer. Please ask again!"}), 400
     

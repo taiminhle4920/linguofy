@@ -8,7 +8,7 @@ const Agent = () => {
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
-    // Start recording using the MediaRecorder API
+
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -29,7 +29,7 @@ const Agent = () => {
         }
     };
 
-    // Stop recording and trigger sending the audio to the server
+ 
     const stopRecording = () => {
         if (mediaRecorderRef.current) {
             mediaRecorderRef.current.stop();
@@ -37,13 +37,13 @@ const Agent = () => {
         }
     };
 
-    // Called when recording stops; compiles audio data and sends it to the server
+    
     const handleRecordingStop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         await sendAudioToServer(audioBlob, 'webm');
     };
 
-    // Function to send the audio blob to the backend server
+   
     const sendAudioToServer = async (audioBlob, extension) => {
         console.log("Sending blob to server, size:", audioBlob.size, "Extension:", extension);
         const formData = new FormData();
@@ -67,7 +67,7 @@ const Agent = () => {
         }
     };
 
-    // Toggle recording on button click
+
     const handleButtonClick = () => {
         if (recording) {
             stopRecording();
