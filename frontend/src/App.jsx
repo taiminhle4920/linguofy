@@ -5,6 +5,7 @@ import LandingPage from "./components/LandingPage";
 import SignupPage from "./components/SignupPage";
 import LoginPage from "./components/LoginPage"; 
 import ProtectedRoute from "./components/ProtectedRoute";
+import HistoryPage from "./components/HistoryPage";
 
 // const App = () => {
 //   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/SignUp" element={<SignupPage />} />
         <Route path="/LandingPage" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
+        <Route path="/HistoryPage" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

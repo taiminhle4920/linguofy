@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import logo from "../assets/logo.svg";
 import "./LandingPage.css";
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -17,7 +17,7 @@ const LandingPage = () => {
     const mediaRecorderRef = useRef(null);
     const stopIntervalRef = useRef(null);
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const modelOptions = [
         { value: "custom", label: "Linguofy.ai Model" },
@@ -181,11 +181,12 @@ const LandingPage = () => {
         return () => window.removeEventListener("resize", updateCanvasSize);
     }, []);
 
-    const handleLogout = () => {
-        sessionStorage.removeItem("userID");
-        navigate("/")
-        window.location.reload();
-    };
+    // const handleLogout = () => {
+    //     sessionStorage.removeItem("userID");
+    //     sessionStorage.removeItem("email");
+    //     navigate("/")
+    //     window.location.reload();
+    // };
 
     const handleClearTranscription = () => {
         setTranscription("");
@@ -245,7 +246,7 @@ const LandingPage = () => {
 
     return (
         <div className="container">
-            <div className="header">
+            {/* <div className="header">
                 <div className="logo-container">
                     <img src={logo} alt="App Logo" className="logo" />
                     <span className="logo-text">Linguofy.ai</span>
@@ -256,7 +257,7 @@ const LandingPage = () => {
                     </button>
                 </div>
                 
-            </div>
+            </div> */}
 
             <div className="visualizer-container">
                 <canvas ref={canvasRef} className="audio-visualizer" />

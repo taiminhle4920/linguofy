@@ -229,6 +229,41 @@ def save_transcription():
     
     return jsonify({"Summary":summary}), 200
 
+@app.route('/get_history', methods=['POST', 'OPTION'])
+def get_history():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+    data = request.get_json() or {}
+    email = data.get("email")
+
+    if not email:
+        return jsonify({"error": "No email provided"}), 400
+
+    user = users_collection.find_one({"email": email})
+    if user and "history" in user:
+        return jsonify({"history": user["history"]}), 200
+
+    return jsonify({"history": {}}), 200  # Return empty history if not found
+
+
+@app.route('/update_history', methods=['PUT'])
+def update_history():
+    """Update a specific transcription entry."""
+    data = request.get_json() or {}
+    email = data.get("email")
+    timestamp = data.get("timestamp")
+    updated_summary = data.get("updated_summary")
+
+    if not email or not timestamp or not updated_summary:
+        return jsonify({"error": "Missing data"}), 400
+
+    user = users_collection.find_one({"email": email})
+    if user and "history" in user and timestamp in user["history"]:
+        user["history"][timestamp] = updated_summary
+        users_collection.update_one({"email": email}, {"$set": {"history": user["history"]}})
+        return jsonify({"message": "History updated successfully"}), 200
+
+    return jsonify({"error": "Invalid request"}), 400
 
 @app.route('/translate', methods=['POST', 'OPTION'])
 def translate():

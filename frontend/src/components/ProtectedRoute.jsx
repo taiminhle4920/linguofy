@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const ProtectedRoute = ({ children }) => {
     const userID = sessionStorage.getItem("UserID");
@@ -7,7 +8,12 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/" />;
     }
 
-    return children;
+    return (
+        <>
+            <Navbar />
+            {children}
+        </>
+    );
 };
 
 export default ProtectedRoute;
