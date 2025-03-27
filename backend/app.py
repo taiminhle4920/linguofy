@@ -243,7 +243,7 @@ def get_history():
     if user and "history" in user:
         return jsonify({"history": user["history"]}), 200
 
-    return jsonify({"history": {}}), 200  # Return empty history if not found
+    return jsonify({"history": {}}), 200
 
 
 @app.route('/update_history', methods=['PUT'])
@@ -284,7 +284,43 @@ def translate():
     return jsonify({"Translation": "No translation avaiable"}), 400
     
     
-        
+@app.route('/agent', methods=['POST', 'OPTION'])
+def agent():
+    if request.method == "OPTIONS":
+        return add_cors_headers(jsonify({"status": "ok"}))
+
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    try:
+        audio_data, sample_rate = read_audio_file(file)
+    except Exception as e:
+        return jsonify({"error": f"Error reading audio file: {str(e)}"}), 400
+
+    if sample_rate != TARGET_RATE:
+        audio_data = librosa.resample(
+            audio_data, orig_sr=sample_rate, target_sr=TARGET_RATE)
+
+    if len(audio_data.shape) > 1:
+        audio_data = audio_data[:, 0]
+
+    temp_wav_path = "temp_audio.wav"
+    sf.write(temp_wav_path, audio_data, TARGET_RATE)
+
+    segments, info = model.transcribe(
+        temp_wav_path, beam_size=5, vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
+    transcription = " ".join([segment.text for segment in segments]).strip()
+    
+    answer = googleClient.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"{transcription}. /n Answer the question. If you can't understand the question or the question is not clear, ask the question again."
+    )
+
+
+    if answer.text:
+        return jsonify({"Translation": answer.text}), 200
+    return jsonify({"Answer": "Unable to provide the answer. Please ask again!"}), 400
     
     
 if __name__ == '__main__':

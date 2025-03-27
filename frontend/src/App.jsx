@@ -6,6 +6,7 @@ import SignupPage from "./components/SignupPage";
 import LoginPage from "./components/LoginPage"; 
 import ProtectedRoute from "./components/ProtectedRoute";
 import HistoryPage from "./components/HistoryPage";
+import Agent from "./components/Agent";
 
 // const App = () => {
 //   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/SignUp" element={<SignupPage />} />
         <Route path="/LandingPage" element={<ProtectedRoute><LandingPage /></ProtectedRoute>} />
         <Route path="/HistoryPage" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+        <Route path="/Agent" element={<ProtectedRoute><Agent /></ProtectedRoute>}/>
       </Routes>
     </Router>
   );

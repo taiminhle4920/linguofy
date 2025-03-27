@@ -22,6 +22,7 @@ const Navbar = () => {
             <div className="nav-links">
                 <Link to="/LandingPage">Transcription</Link>
                 <Link to="/HistoryPage">History</Link>
+                <Link to="/Agent">Agent</Link>
             </div>
             {userID && <button className="logout-button" onClick={handleLogout}>Logout</button>}
         </nav>

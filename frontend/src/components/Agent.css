@@ -1,0 +1,111 @@
+/* NavBar.css (example) */
+.navbar {
+    width: 100%;
+    background-color: #1a1a1a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    box-sizing: border-box;
+}
+
+/* Agent.css */
+
+/* Reset/Global */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: #1a1a1a;
+    font-family: sans-serif;
+}
+
+.agent-container {
+    /* No min-height: 100vh if you want the NavBar at the top with no huge space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.agent-transcription {
+    width: 90%;
+    max-width: 600px;
+    background-color: #2a2a2a;
+    padding: 25px;
+    border-radius: 12px;
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    margin: 20px auto;
+    /* Center horizontally with auto margin */
+    min-height: 200px;
+    /* Example smaller box */
+}
+
+/* Footer remains fixed or can be normal flow as well */
+.agent-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    background-color: #1a1a1a;
+    box-sizing: border-box;
+}
+
+.agent-button {
+    background-color: #61dafb;
+    border: none;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.agent-button:hover {
+    background-color: #4db8e0;
+}
+
+.agent-button.recording {
+    background-color: #f44336;
+}
+
+.agent-button svg {
+    fill: #ffffff;
+}
+
+/* Responsive for tablets */
+@media (max-width: 768px) {
+    .agent-transcription {
+        width: 95%;
+        padding: 20px;
+    }
+
+    .agent-button {
+        width: 56px;
+        height: 56px;
+    }
+}
+
+/* Responsive for phones */
+@media (max-width: 480px) {
+    .agent-transcription {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .agent-button {
+        width: 48px;
+        height: 48px;
+    }
+}
