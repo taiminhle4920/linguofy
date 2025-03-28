@@ -46,7 +46,7 @@ def add_cors_headers(response):
 
 @app.route('/', methods=['GET'])
 def test():
-    # client.server_info()
+
     return "app.py is working"
 
 @app.route("/signup", methods=['POST', 'OPTION'])
@@ -57,7 +57,6 @@ def signup():
     email = data.get("email")
     password = data.get("password")
 
-    # Check if user already exists
     if users_collection.find_one({"email": email}):
         return jsonify({"error": "User already exists"}), 400
 
@@ -74,7 +73,7 @@ def login():
     email = data.get("email")
     password = data.get("password")
 
-    # Check if user exists
+
     user = users_collection.find_one({"email": email})
     if not user or not bcrypt.check_password_hash(user["password"], password):
         return jsonify({"error": "Invalid credentials"}), 401
@@ -163,24 +162,14 @@ def save_transcription():
     summary = get_summary(transcribed_text)
     user = users_collection.find_one({"email": email})
     if user:
-        # if "history" in user and isinstance(user["history"], list):
-        #     history = user["history"]
-        #     new_history = [summary] + history
-        #     users_collection.update_one({"email": email}, {
-        #                                 "$set": {"history": new_history}})
-        # else:
-        #     print('new history')
-        #     users_collection.update_one({"email": email}, {
-        #                                 "$set": {"history": [summary]}})
 
-            # If history already exists and is a dict, add a new key-value pair
         if "history" in user and isinstance(user["history"], dict):
             user["history"][timestamp] = summary
             users_collection.update_one(
                 {"email": email}, {"$set": {"history": user["history"]}})
             print(user["history"])
         else:
-            # Initialize history as a dict with the current timestamp and summary
+
             users_collection.update_one(
                 {"email": email}, {"$set": {"history": {timestamp: summary}}})
     
