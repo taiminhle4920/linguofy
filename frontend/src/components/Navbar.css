@@ -37,7 +37,7 @@ nav {
     font-weight: 500;
 }
 
-/* Desktop nav-links */
+
 .nav-links {
     display: flex;
     gap: 20px;
@@ -86,7 +86,7 @@ nav {
     font-weight: 500;
 }
 
-/* Desktop nav-links */
+
 .nav-links {
     display: flex;
     gap: 20px;
@@ -120,7 +120,7 @@ nav {
     background-color: #c82333;
 }
 
-/* Hide the menu toggle on desktop */
+
 .menu-toggle {
     font-size: 2rem;
     background: none;
@@ -130,9 +130,9 @@ nav {
     display: none;
 }
 
-/* Responsive styling for tablet and phone */
+
 @media (max-width: 768px) {
-    /* Keep navbar in a row so logo is on the left and menu button is on the right */
+  
     nav {
         flex-direction: row;
         justify-content: space-between;
@@ -140,34 +140,33 @@ nav {
         padding: 15px 20px;
     }
     
-    /* Show the hamburger menu button and push it to the right */
+    
     .menu-toggle {
         display: block;
-        margin-left: auto; /* Ensures it sits on the far right */
+        margin-left: auto; 
     }
-    
-    /* Hide the nav links by default on mobile */
+
     .nav-links {
         display: none;
         flex-direction: column;
-        align-items: flex-end;  /* Align dropdown items to the right */
+        align-items: flex-end;  
         gap: 10px;
         position: absolute;
-        top: 60px; /* Adjust based on your navbar height */
-        right: 10px; /* Anchor to the right side */
+        top: 60px; 
+        right: 10px; 
         left: auto;
         background-color: #1a1a1a;
         padding: 10px 15px;
         border-radius: 5px;
     }
     
-    /* Show nav links when active */
+
     .nav-links.active {
         display: flex;
     }
 }
 
-/* Further adjustments for smaller phones */
+
 @media (max-width: 480px) {
     .logo {
         width: 35px;
@@ -210,7 +209,7 @@ nav {
     background-color: #c82333;
 }
 
-/* Hide the menu toggle on desktop */
+
 .menu-toggle {
     font-size: 2rem;
     background: none;
@@ -220,44 +219,42 @@ nav {
     display: none;
 }
 
-/* Responsive styling for tablet and phone */
+
 @media (max-width: 768px) {
-    /* Keep navbar in a row so logo is on the left and menu button is on the right */
+    
     nav {
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
         padding: 15px 20px;
     }
-    
-    /* Show the hamburger menu button and push it to the right */
+
     .menu-toggle {
         display: block;
-        margin-left: auto; /* Ensures it sits on the far right */
+        margin-left: auto; 
     }
     
-    /* Hide the nav links by default on mobile */
     .nav-links {
         display: none;
         flex-direction: column;
-        align-items: flex-end;  /* Align dropdown items to the right */
+        align-items: flex-end;  
         gap: 10px;
         position: absolute;
-        top: 60px; /* Adjust based on your navbar height */
-        right: 10px; /* Anchor to the right side */
+        top: 60px; 
+        right: 10px; 
         left: auto;
         background-color: #1a1a1a;
         padding: 10px 15px;
         border-radius: 5px;
     }
     
-    /* Show nav links when active */
+
     .nav-links.active {
         display: flex;
     }
 }
 
-/* Further adjustments for smaller phones */
+
 @media (max-width: 480px) {
     .logo {
         width: 35px;

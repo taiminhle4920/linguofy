@@ -79,16 +79,16 @@ const LandingPage = () => {
                     const extension = mediaRecorderRef.current.mimeType.includes("webm") ? "webm" : "wav";
                     await sendAudioToServer(audioBlob, extension);
 
-                    // Reset chunks
+
                     chunksRef.current = [];
                 }
             };
 
-            // Start recording
+
             mediaRecorderRef.current.start();
             setIsRecording(true);
 
-            // Set up interval to stop and restart recording
+
             stopIntervalRef.current = setInterval(() => {
                 if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
                     mediaRecorderRef.current.stop();
@@ -104,32 +104,27 @@ const LandingPage = () => {
     };
 
     const stopRecording = () => {
-        // Clear the interval
+
         if (stopIntervalRef.current) {
             clearInterval(stopIntervalRef.current);
         }
 
-        // Stop the media recorder
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
             mediaRecorderRef.current.stop();
         }
 
-        // Stop animation frame
         if (animationFrameRef.current) {
             cancelAnimationFrame(animationFrameRef.current);
         }
 
-        // Close audio context
         if (audioContextRef.current) {
             audioContextRef.current.close();
         }
 
-        // Stop media stream tracks
         if (mediaStreamRef.current) {
             mediaStreamRef.current.getTracks().forEach((track) => track.stop());
         }
 
-        // Reset state
         setIsRecording(false);
     };
 

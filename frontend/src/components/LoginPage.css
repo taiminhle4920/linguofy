@@ -64,7 +64,7 @@ body {
 .submit-button {
     width: 50%;
     padding: 12px;
-    background-color: #007bff; /* Primary blue color */
+    background-color: #007bff; 
     color: white;
     font-size: 16px;
     font-weight: bold;
@@ -75,9 +75,9 @@ body {
 }
 
 .submit-button:hover {
-    background-color: #0056b3; /* Darker blue for hover effect */
+    background-color: #0056b3; 
 }
 
 .submit-button:active {
-    background-color: #004494; /* Even darker blue when clicked */
+    background-color: #004494; 
 }

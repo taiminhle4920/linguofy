@@ -6,19 +6,19 @@ import "./SignupPage.css";
 const SignupPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");  // Handle errors
-    const [success, setSuccess] = useState("");  // Success message
+    const [error, setError] = useState("");  
+    const [success, setSuccess] = useState("");  
     const navigate = useNavigate();
 
     const handleSignup = async (e) => {
-        e.preventDefault();  // Prevent page refresh
+        e.preventDefault(); 
         setError("");
         setSuccess("");
 
         try {
             await axios.post("http://127.0.0.1:5000/signup", { email, password });
             setSuccess("Account created successfully! Redirecting to login...");
-            setTimeout(() => navigate("/"), 2000);  // Redirect after 2 seconds
+            setTimeout(() => navigate("/"), 2000);  
         } catch (err) {
             setError(err.response?.data?.error || "Signup failed. Try again.");
         }

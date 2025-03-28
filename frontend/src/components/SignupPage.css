@@ -74,9 +74,9 @@ body {
 }
 
 .submit-button:hover {
-    background-color: #0056b3; /* Darker blue for hover effect */
+    background-color: #0056b3;
 }
 
 .submit-button:active {
-    background-color: #004494; /* Even darker blue when clicked */
+    background-color: #004494; 
 }
