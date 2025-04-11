@@ -16,32 +16,46 @@ const Navbar = () => {
     };
 
     return (
-        <nav>
-            <div className="logo-container">
-                <img src={logo} alt="App Logo" className="logo" />
-                <span className="logo-text">Linguofy.ai</span>
-            </div>
-            {/* Menu toggle button for mobile */}
-            <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+        <>
+            <button 
+                // className="menu-toggle"
+                className={`menu-toggle ${menuOpen ? 'hidden' : ''}`} 
+                onClick={() => setMenuOpen(!menuOpen)}
+            >
                 ☰
             </button>
-            <div className={`nav-links ${menuOpen ? "active" : ""}`}>
-                <Link to="/LandingPage" onClick={() => setMenuOpen(false)}>
-                    Transcription
-                </Link>
-                <Link to="/HistoryPage" onClick={() => setMenuOpen(false)}>
-                    History
-                </Link>
-                <Link to="/Agent" onClick={() => setMenuOpen(false)}>
-                    Agent
-                </Link>
-                {userID && (
-                    <button className="logout-button" onClick={handleLogout}>
-                        Logout
-                    </button>
-                )}
-            </div>
-        </nav>
+
+            <nav className={menuOpen ? "active" : ""}>
+                <div className="nav-top">
+                    <div className="logo-container">
+                        <img src={logo} alt="App Logo" className="logo" />
+                        <span className="logo-text">Linguofy.ai</span>
+                    </div>
+                </div>
+                
+                <div className="nav-middle">
+                    <Link to="/LandingPage" onClick={() => setMenuOpen(false)}>
+                        📝 Transcription
+                    </Link>
+                    <Link to="/HistoryPage" onClick={() => setMenuOpen(false)}>
+                        📚 History
+                    </Link>
+                    <Link to="/Agent" onClick={() => setMenuOpen(false)}>
+                        👤 Agent
+                    </Link>
+                </div>
+                
+                <div className="nav-bottom">
+                    {userID && (
+                        <button className="logout-button" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    )}
+                </div>
+            </nav>
+
+            {menuOpen && <div className="sidebar-overlay" onClick={() => setMenuOpen(false)}></div>}
+        </>
     );
 };
 
