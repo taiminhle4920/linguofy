@@ -1,12 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../assets/logo.svg";
 import "./Navbar.css";
 
 const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [history, setHistory] = useState({});
     const navigate = useNavigate();
     const userID = sessionStorage.getItem("UserID");
+    const userEmail = sessionStorage.getItem("email");
 
     const handleLogout = () => {
         sessionStorage.removeItem("UserID");
@@ -14,6 +16,19 @@ const Navbar = () => {
         navigate("/");
         window.location.reload();
     };
+
+    useEffect(() => {
+        if (userEmail) {
+            fetch("http://127.0.0.1:5000/get_history", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: userEmail }),
+            })
+                .then((res) => res.json())
+                .then((data) => setHistory(data.history || {}))
+                .catch((err) => console.error("Error fetching history:", err));
+        }
+    }, [userEmail]);
 
     return (
         <>
@@ -37,12 +52,31 @@ const Navbar = () => {
                     <Link to="/LandingPage" onClick={() => setMenuOpen(false)}>
                         📝 Transcription
                     </Link>
-                    <Link to="/HistoryPage" onClick={() => setMenuOpen(false)}>
+                    {/* <Link to="/HistoryPage" onClick={() => setMenuOpen(false)}>
                         📚 History
-                    </Link>
+                    </Link> */}
                     <Link to="/Agent" onClick={() => setMenuOpen(false)}>
                         👤 Agent
                     </Link>
+                    {/* <div className="sidebar-history-section"> */}
+                        {/* <h4 className="sidebar-history-title">📚 History</h4> */}
+                        <div className="sidebar-history-list">
+                            {Object.entries(history).length === 0 ? (
+                                <p className="sidebar-history-empty">No history availiable</p>
+                            ) : (
+                                Object.entries(history).map(([timestamp, text]) => (
+                                    <Link
+                                        key={timestamp}
+                                        to={`/History/${encodeURIComponent(timestamp)}`}
+                                        className="sidebar-history-item"
+                                        onClick={() => setMenuOpen(false)}
+                                    >
+                                        {new Date(timestamp).toLocaleDateString()} - {text.slice(0, 20)}...
+                                    </Link>
+                                ))
+                            )}
+                        </div>
+                    {/* </div> */}
                 </div>
                 
                 <div className="nav-bottom">
