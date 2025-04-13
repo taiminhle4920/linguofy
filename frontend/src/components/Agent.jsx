@@ -101,46 +101,6 @@ const Agent = () => {
         }
     };
 
-    // return (
-    //     <div className="agent-container">
-    //         <div className="agent-transcription">
-    //             <h2>Server Response:</h2>
-    //             <p>{transcription}</p>
-    //         </div>
-    //             <div className="agent-input-section">
-    //                 <input
-    //                 type="text"
-    //                 placeholder="Type your question..."
-    //                 value={prompt}
-    //                 onChange={(e) => setPrompt(e.target.value)}
-    //                 className="agent-text-input"
-    //             />
-    //             <button onClick={sendPromptToServer} className="agent-send-button">
-    //                 Send
-    //             </button>
-    //         </div>
-    //         <div className="agent-footer">
-    //             <button
-    //                 className={`agent-button ${recording ? 'recording' : ''}`}
-    //                 onClick={handleButtonClick}
-    //             >
-    //                 <svg
-    //                     xmlns="http://www.w3.org/2000/svg"
-    //                     width="32"
-    //                     height="32"
-    //                     fill="currentColor"
-    //                     viewBox="0 0 16 16"
-    //                 >
-    //                     <path d="M8 11a3 3 0 0 0 3-3V3a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
-    //                     <path d="M5 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
-    //                     <path d="M10 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
-    //                     <path d="M8 14a3 3 0 0 0 3-3H5a3 3 0 0 0 3 3z" />
-    //                 </svg>
-    //             </button>
-    //         </div>
-    //     </div>
-    // );
-
     return (
         <div className="agent-container">
             <div className="agent-transcription">
