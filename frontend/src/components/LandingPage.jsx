@@ -231,6 +231,7 @@ const LandingPage = () => {
             const data = await response.json();
             alert("Transcription saved successfully!");
             setTranscription("")
+            window.location.reload();
         } catch (error) {
             console.error("Error saving transcription:", error);
             alert("Failed to save transcription");
