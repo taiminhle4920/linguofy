@@ -55,13 +55,9 @@
     font-size: 16px;
 }
 .recordButton {
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-top:     -10px;
     padding: 10px 20px;
     background-color: #007bff;
-
     color: white;
     border: none;
     border-radius: 5px;
@@ -86,7 +82,6 @@
    
 }
 .bottomSection {
-    position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
@@ -101,7 +96,7 @@
     width: 100%;
     max-width: 1400px;
     background-color: #2a2a2a;
-    height: 600px;
+    height: 400px;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
@@ -204,7 +199,12 @@
     }
 
     .bottomSection {
-        padding: 30px;
+
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 20px;
+        background-color: #1a1a1a;
     }
 }
 
@@ -216,7 +216,6 @@
     .visualizer-container {
         height: 200px;
         width: 95%;
-        padding: 15px;
     }
 
     .transcription-box {

@@ -11,9 +11,10 @@ body {
     color:#00aaff
 }
 .agent-container {
-   
+    display: flex;
     flex-direction: column;
-    align-items: center;
+    margin-top: 5%;
+    min-height: 90vh;
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
@@ -21,32 +22,27 @@ body {
 
 .agent-transcription {
     width: 90%;
-    max-width: 600px;
+    max-width: 1400px;
     background-color: #2a2a2a;
     padding: 25px;
     border-radius: 12px;
     color: #ffffff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     margin: 20px auto;
-    
     min-height: 200px;
-
+    flex: 1;
 }
 
-
 .agent-footer {
+    margin-top: auto;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
     padding: 15px 20px;
     background-color: #1a1a1a;
     box-sizing: border-box;
 }
-
 .agent-input-section {
     display: flex;
     flex: 1;

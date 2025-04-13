@@ -239,7 +239,16 @@ const LandingPage = () => {
 
     return (
         <div className="container">
-            <div className="visualizer-container">
+            {/* <div className="visualizer-container">
+                <canvas ref={canvasRef} className="audio-visualizer" />
+                <button
+                    onClick={handleToggleRecording}
+                    className={`recordButton ${isRecording ? 'recording' : ''}`}
+                >
+                    {isRecording ? 'Stop Recording' : 'Start Recording'}
+                </button>
+            </div> */}
+            <div className="visualizer-container" style={{ flexDirection: "column" }}>
                 <canvas ref={canvasRef} className="audio-visualizer" />
                 <button
                     onClick={handleToggleRecording}
@@ -248,7 +257,6 @@ const LandingPage = () => {
                     {isRecording ? 'Stop Recording' : 'Start Recording'}
                 </button>
             </div>
-
             <div className="bottomSection">
                 <div className="box transcription-box">
                     <h3>Transcription</h3>
