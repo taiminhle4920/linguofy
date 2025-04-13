@@ -37,26 +37,64 @@ body {
 .agent-footer {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
     position: fixed;
     bottom: 0;
     left: 0;
-    padding: 20px;
+    padding: 15px 20px;
     background-color: #1a1a1a;
     box-sizing: border-box;
+}
+
+.agent-input-section {
+    display: flex;
+    flex: 1;
+    margin-right: 15px;
+}
+
+.agent-text-input {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 16px;
+    margin-right: 10px;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    outline: none;
+}
+
+.agent-text-input::placeholder {
+    color: #888;
+}
+
+.agent-send-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #00aaff;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.agent-send-button:hover {
+    background-color: #008ecc;
 }
 
 .agent-button {
     background-color: #61dafb;
     border: none;
     border-radius: 50%;
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.3s ease;
 }
 
 .agent-button:hover {
@@ -65,10 +103,6 @@ body {
 
 .agent-button.recording {
     background-color: #f44336;
-}
-
-.agent-button svg {
-    fill: #ffffff;
 }
 
 /* Responsive for tablets */

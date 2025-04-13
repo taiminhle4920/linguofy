@@ -35,6 +35,7 @@ client = MongoClient(mongoURL)
 db = client["LinguofyDB"]
 users_collection = db["User"]
 
+
 @app.after_request
 def add_cors_headers(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -44,10 +45,12 @@ def add_cors_headers(response):
                          "GET,POST,PUT,DELETE,OPTIONS")
     return response
 
+
 @app.route('/', methods=['GET'])
 def test():
 
     return "app.py is working"
+
 
 @app.route("/signup", methods=['POST', 'OPTION'])
 def signup():
@@ -65,6 +68,7 @@ def signup():
 
     return jsonify({"message": "User created successfully"}), 201
 
+
 @app.route("/login", methods=['POST', 'OPTION'])
 def login():
     if request.method == "OPTIONS":
@@ -72,7 +76,6 @@ def login():
     data = request.get_json() or {}
     email = data.get("email")
     password = data.get("password")
-
 
     user = users_collection.find_one({"email": email})
     if not user or not bcrypt.check_password_hash(user["password"], password):
@@ -133,6 +136,7 @@ def transcribe():
         torch.cuda.empty_cache()
     return jsonify({"transcription": transcription})
 
+
 def get_summary(text):
     response = googleClient.models.generate_content(
         model="gemini-2.0-flash",
@@ -141,23 +145,22 @@ def get_summary(text):
 
     return response.text
 
+
 @app.route('/save_transcription', methods=['POST', 'OPTION'])
 def save_transcription():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))
     data = request.get_json() or {}
     transcribed_text = data.get("transcription")
-    email = data.get("email") 
+    email = data.get("email")
     print('email', email)
 
-     
     if not transcribed_text:
         return jsonify({"error": "No transcription provided"}), 400
 
     if not email:
         return jsonify({"error": "No email provided"}), 400
 
-    
     timestamp = datetime.now().isoformat()
     summary = get_summary(transcribed_text)
     user = users_collection.find_one({"email": email})
@@ -172,8 +175,9 @@ def save_transcription():
 
             users_collection.update_one(
                 {"email": email}, {"$set": {"history": {timestamp: summary}}})
-    
-    return jsonify({"Summary":summary}), 200
+
+    return jsonify({"Summary": summary}), 200
+
 
 @app.route('/get_history', methods=['POST', 'OPTION'])
 def get_history():
@@ -206,31 +210,68 @@ def update_history():
     user = users_collection.find_one({"email": email})
     if user and "history" in user and timestamp in user["history"]:
         user["history"][timestamp] = updated_summary
-        users_collection.update_one({"email": email}, {"$set": {"history": user["history"]}})
+        users_collection.update_one(
+            {"email": email}, {"$set": {"history": user["history"]}})
         return jsonify({"message": "History updated successfully"}), 200
 
     return jsonify({"error": "Invalid request"}), 400
 
-@app.route('/translate', methods=['POST', 'OPTION'])
+
+@app.route('/translate', methods=['POST', 'OPTIONS'])
 def translate():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))
     data = request.get_json() or {}
     transcribed_text = data.get("transcription")
-    
+
     if not transcribed_text:
         return jsonify({"error": "No transcription provided"}), 400
 
     translation = googleClient.models.generate_content(
         model="gemini-2.0-flash",
         contents=f"{transcribed_text}. /n Translate this to English. No extra text, just translation")
-    
+
     if translation.text:
         return jsonify({"Translation": translation.text}), 200
     return jsonify({"Translation": "No translation avaiable"}), 400
-    
-    
-@app.route('/agent', methods=['POST', 'OPTION'])
+
+
+@app.route('/agenttext', methods=['POST', 'OPTION'])
+def agenttext():
+    if request.method == 'OPTIONS':
+        return add_cors_headers(jsonify({"status": "ok"}))
+
+    data = request.get_json()
+
+    if not data or 'prompt' not in data:
+        return jsonify({"error": "No prompt provided"}), 400
+
+    prompt = data.get('prompt')
+    cache_key = hashlib.md5(prompt.encode('utf-8')).hexdigest()
+    current_time = datetime.now()
+
+    if cache_key in agent_cache:
+        cached_answer, timestamp = agent_cache[cache_key]
+        if current_time - timestamp < CACHE_TTL:
+            print("Returning cached answer")
+            return add_cors_headers(jsonify({"Translation": cached_answer})), 200
+        else:
+            del agent_cache[cache_key]
+
+    cache_data_str = json.dumps({k: v[0] for k, v in agent_cache.items()})
+
+    answer = googleClient.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"Question: {prompt}. Cache: {cache_data_str}.\nAnswer the question with cached data and your knowledge. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't include the cache information. Answer the question directly."
+    )
+
+    if answer.text:
+        agent_cache[cache_key] = (answer.text, current_time)
+        return jsonify({"answer": answer.text}), 200
+
+    return add_cors_headers(jsonify({"answer": "Unable to provide the answer. Please ask again!"})), 400
+
+@app.route('/agent', methods=['POST', 'OPTIONS'])
 def agent():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))
@@ -253,35 +294,35 @@ def agent():
 
     temp_wav_path = "temp_audio.wav"
     sf.write(temp_wav_path, audio_data, TARGET_RATE)
-    
+
     segments, info = model.transcribe(
         temp_wav_path, beam_size=5, vad_filter=True, vad_parameters=dict(min_silence_duration_ms=500))
     transcription = " ".join([segment.text for segment in segments]).strip()
 
     cache_key = hashlib.md5(transcription.encode("utf-8")).hexdigest()
     current_time = datetime.now().isoformat()
-    
+
     if cache_key in agent_cache:
         cached_answer, timestamp = agent_cache[cache_key]
         if current_time - timestamp < CACHE_TTL:
             print("Returning cached answer")
         else:
             del agent_cache[cache_key]
-    
-    cache_data_str = json.dumps(agent_cache) 
+
+    cache_data_str = json.dumps(agent_cache)
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Answer the question using cached data. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't need to include the cache information. Answer the question directly.",
+        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Answer the question with cached data and your knowledge. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't need to include the cache information. Answer the question directly.",
 
     )
 
-
-
     if answer.text:
         agent_cache[cache_key] = (answer.text, current_time)
-        return jsonify({"Translation": answer.text}), 200
-    return jsonify({"Answer": "Unable to provide the answer. Please ask again!"}), 400
-    
-    
+        return jsonify({"answer": answer.text}), 200
+    return jsonify({"answer": "Unable to provide the answer. Please ask again!"}), 400
+
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)

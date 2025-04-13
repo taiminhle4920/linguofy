@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 const Agent = () => {
     const [recording, setRecording] = useState(false);
     const [transcription, setTranscription] = useState('');
+    const [prompt, setPrompt] = useState('');
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
@@ -56,17 +57,41 @@ const Agent = () => {
             });
             console.log("Response received from backend:", response);
             const data = await response.json();
-            if (data.Translation) {
-                console.log("Translation received:", data.Translation);
+            if (data.answer) {
+                console.log("Answer received:", data.answer);
                 setTranscription(data.Translation);
             } else {
-                console.log("No translation in response:", data);
+                console.log("No answer in response:", data);
             }
         } catch (error) {
             console.error("Error sending audio to server:", error);
         }
     };
 
+    const sendPromptToServer = async () => {
+        if (!prompt.trim()) return;
+
+        try {
+            const response = await fetch("http://127.0.0.1:5000/agenttext", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    prompt: prompt
+                })
+            });
+            const data = await response.json();
+            if (data.answer) {
+                setTranscription(data.answer);
+                setPrompt(''); 
+            } else {
+                console.log("No translation in response:", data);
+            }
+        } catch (error) {
+            console.error("Error sending prompt to server:", error);
+        }
+    };
 
     const handleButtonClick = () => {
         if (recording) {
@@ -76,13 +101,67 @@ const Agent = () => {
         }
     };
 
+    // return (
+    //     <div className="agent-container">
+    //         <div className="agent-transcription">
+    //             <h2>Server Response:</h2>
+    //             <p>{transcription}</p>
+    //         </div>
+    //             <div className="agent-input-section">
+    //                 <input
+    //                 type="text"
+    //                 placeholder="Type your question..."
+    //                 value={prompt}
+    //                 onChange={(e) => setPrompt(e.target.value)}
+    //                 className="agent-text-input"
+    //             />
+    //             <button onClick={sendPromptToServer} className="agent-send-button">
+    //                 Send
+    //             </button>
+    //         </div>
+    //         <div className="agent-footer">
+    //             <button
+    //                 className={`agent-button ${recording ? 'recording' : ''}`}
+    //                 onClick={handleButtonClick}
+    //             >
+    //                 <svg
+    //                     xmlns="http://www.w3.org/2000/svg"
+    //                     width="32"
+    //                     height="32"
+    //                     fill="currentColor"
+    //                     viewBox="0 0 16 16"
+    //                 >
+    //                     <path d="M8 11a3 3 0 0 0 3-3V3a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
+    //                     <path d="M5 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
+    //                     <path d="M10 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
+    //                     <path d="M8 14a3 3 0 0 0 3-3H5a3 3 0 0 0 3 3z" />
+    //                 </svg>
+    //             </button>
+    //         </div>
+    //     </div>
+    // );
+
     return (
         <div className="agent-container">
             <div className="agent-transcription">
                 <h2>Server Response:</h2>
                 <p>{transcription}</p>
             </div>
+
             <div className="agent-footer">
+                <div className="agent-input-section">
+                    <input
+                        type="text"
+                        placeholder="Type your question..."
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        className="agent-text-input"
+                    />
+                    <button onClick={sendPromptToServer} className="agent-send-button">
+                        Send
+                    </button>
+                </div>
+
                 <button
                     className={`agent-button ${recording ? 'recording' : ''}`}
                     onClick={handleButtonClick}
@@ -95,14 +174,15 @@ const Agent = () => {
                         viewBox="0 0 16 16"
                     >
                         <path d="M8 11a3 3 0 0 0 3-3V3a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z" />
-                        <path d="M5 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
-                        <path d="M10 8.5a.5.5 0 0 1 1 0v2a.5.5 0 0 1-1 0v-2z" />
-                        <path d="M8 14a3 3 0 0 0 3-3H5a3 3 0 0 0 3 3z" />
                     </svg>
                 </button>
             </div>
         </div>
     );
+
 };
 
 export default Agent;
+
+
+
