@@ -33,7 +33,6 @@ const Navbar = () => {
     return (
         <>
             <button 
-                // className="menu-toggle"
                 className={`menu-toggle ${menuOpen ? 'hidden' : ''}`} 
                 onClick={() => setMenuOpen(!menuOpen)}
             >
@@ -49,17 +48,16 @@ const Navbar = () => {
                 </div>
                 
                 <div className="nav-middle">
-                    <Link to="/LandingPage" onClick={() => setMenuOpen(false)}>
-                        📝 Transcription
-                    </Link>
-                    {/* <Link to="/HistoryPage" onClick={() => setMenuOpen(false)}>
-                        📚 History
-                    </Link> */}
-                    <Link to="/Agent" onClick={() => setMenuOpen(false)}>
-                        👤 Agent
-                    </Link>
-                    {/* <div className="sidebar-history-section"> */}
-                        {/* <h4 className="sidebar-history-title">📚 History</h4> */}
+                    <div className="page-button">
+                        <Link to="/LandingPage" onClick={() => setMenuOpen(false)}>
+                            Transcription
+                        </Link>
+                    
+                        <Link to="/Agent" onClick={() => setMenuOpen(false)}>
+                            Agent
+                        </Link>
+                    </div>
+                   
                         <div className="sidebar-history-list">
                             {Object.entries(history).length === 0 ? (
                                 <p className="sidebar-history-empty">No history availiable</p>
@@ -76,7 +74,6 @@ const Navbar = () => {
                                 ))
                             )}
                         </div>
-                    {/* </div> */}
                 </div>
                 
                 <div className="nav-bottom">

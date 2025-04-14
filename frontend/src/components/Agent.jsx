@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import './Agent.css';
-import Navbar from './Navbar';
 
 const Agent = () => {
     const [recording, setRecording] = useState(false);
     const [transcription, setTranscription] = useState('');
+    const [messages, setMessages] = useState([]);
+    const chatWindowRef = useRef(null);
     const [prompt, setPrompt] = useState('');
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
@@ -57,9 +58,16 @@ const Agent = () => {
             });
             console.log("Response received from backend:", response);
             const data = await response.json();
+            
+
             if (data.answer) {
-                console.log("Answer received:", data.answer);
-                setTranscription(data.Translation);
+                setMessages((prev) => [
+                    ...prev,
+                    { sender: 'user', text: data.question },
+                    { sender: 'bot', text: data.answer }
+                ]);
+                setPrompt('');
+            
             } else {
                 console.log("No answer in response:", data);
             }
@@ -82,9 +90,22 @@ const Agent = () => {
                 })
             });
             const data = await response.json();
+            // if (data.answer) {
+            //     setMessages((prev) => [
+            //         ...prev,
+            //         { sender: 'bot', text: data.answer }
+            //     ]);
+            setMessages((prev) => [
+                ...prev,
+                { sender: 'user', text: prompt },
+            ]);
+
             if (data.answer) {
-                setTranscription(data.answer);
-                setPrompt(''); 
+                setMessages((prev) => [
+                    ...prev,
+                    { sender: 'bot', text: data.answer }
+                ]);
+                setPrompt('');
             } else {
                 console.log("No translation in response:", data);
             }
@@ -104,8 +125,18 @@ const Agent = () => {
     return (
         <div className="agent-container">
             <div className="agent-transcription">
-                <h2>Server Response:</h2>
-                <p>{transcription}</p>
+                {/* <h2>Server Response:</h2>
+                <p>{transcription}</p> */}
+                <div className="agent-transcription chat-window" ref={chatWindowRef}>
+                    {messages.map((msg, idx) => (
+                        <div
+                            key={idx}
+                            className={`chat-bubble ${msg.sender === 'user' ? 'user' : 'bot'}`}
+                        >
+                            {msg.text}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <div className="agent-footer">

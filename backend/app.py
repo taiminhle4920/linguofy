@@ -262,7 +262,7 @@ def agenttext():
 
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Question: {prompt}. Cache: {cache_data_str}.\nAnswer the question with cached data and your knowledge. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't include the cache information. Answer the question directly."
+        contents=f"Question: {prompt}. Cache: {cache_data_str}.\nUse the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer."
     )
 
     if answer.text:
@@ -308,18 +308,20 @@ def agent():
             print("Returning cached answer")
         else:
             del agent_cache[cache_key]
-
+    
+    
+    print(transcription)
     cache_data_str = json.dumps(agent_cache)
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Answer the question with cached data and your knowledge. If you can't understand the question or the question is not clear, ask the question again. When providing the answer, don't need to include the cache information. Answer the question directly.",
+        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Use the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer.",
 
     )
 
     if answer.text:
         agent_cache[cache_key] = (answer.text, current_time)
-        return jsonify({"answer": answer.text}), 200
-    return jsonify({"answer": "Unable to provide the answer. Please ask again!"}), 400
+        return jsonify({"answer": answer.text, "question": transcription}), 200
+    return jsonify({"answer": "Unable to provide the answer. Please ask again!", "question": transcription}), 400
 
 
 

@@ -20,18 +20,7 @@ body {
     width: 100%;
 }
 
-.agent-transcription {
-    width: 90%;
-    max-width: 1400px;
-    background-color: #2a2a2a;
-    padding: 25px;
-    border-radius: 12px;
-    color: #ffffff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    margin: 20px auto;
-    min-height: 200px;
-    flex: 1;
-}
+
 
 .agent-footer {
     margin-top: auto;
@@ -101,27 +90,79 @@ body {
     background-color: #f44336;
 }
 
-/* Responsive for tablets */
-@media (max-width: 768px) {
-    .agent-transcription {
-        width: 95%;
-        padding: 20px;
-    }
 
-    .agent-button {
-        width: 56px;
-        height: 56px;
-    }
+.chat-window {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    min-height: 75vh;
+    max-height: 70vh;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 12px;
 }
 
-@media (max-width: 480px) {
+.chat-bubble {
+    max-width: 75%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: 16px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    color: white;
+}
+
+.chat-bubble.user {
+    align-self: flex-end;
+    background-color: #00aaff;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.bot {
+    align-self: flex-start;
+    background-color: #007bff;
+    border-bottom-left-radius: 4px;
+}
+
+@media screen and (max-width: 768px) {
     .agent-transcription {
-        width: 95%;
         padding: 15px;
     }
 
+    .chat-bubble {
+        font-size: 14px;
+    }
+
+    .agent-send-button {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
     .agent-button {
-        width: 48px;
-        height: 48px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .chat-window {
+        max-height: 60vh;
+        min-height: 40vh;
+    }
+
+    .agent-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .agent-input-section {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .agent-send-button {
+        width: 100%;
     }
 }
