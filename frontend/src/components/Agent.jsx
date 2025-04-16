@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import './Agent.css';
+import { useEffect } from 'react';
 
 const Agent = () => {
     const [recording, setRecording] = useState(false);
@@ -78,7 +79,10 @@ const Agent = () => {
 
     const sendPromptToServer = async () => {
         if (!prompt.trim()) return;
-
+        setMessages((prev) => [
+            ...prev,
+            { sender: 'user', text: prompt },
+        ]);
         try {
             const response = await fetch("http://127.0.0.1:5000/agenttext", {
                 method: "POST",
@@ -90,16 +94,6 @@ const Agent = () => {
                 })
             });
             const data = await response.json();
-            // if (data.answer) {
-            //     setMessages((prev) => [
-            //         ...prev,
-            //         { sender: 'bot', text: data.answer }
-            //     ]);
-            setMessages((prev) => [
-                ...prev,
-                { sender: 'user', text: prompt },
-            ]);
-
             if (data.answer) {
                 setMessages((prev) => [
                     ...prev,
@@ -121,6 +115,12 @@ const Agent = () => {
             startRecording();
         }
     };
+
+    useEffect(() => {
+        if (chatWindowRef.current) {
+            chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+        }
+    }, [messages]);
 
     return (
         <div className="agent-container">

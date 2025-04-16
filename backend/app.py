@@ -104,7 +104,7 @@ compute_type = "float16" if device == "cuda" else "int8"
 model = WhisperModel("base", device=device, compute_type=compute_type)
 
 
-@app.route('/transcribe', methods=['POST', 'OPTIONS'])
+@app.route('/transcribe', methods=['POST', 'OPTION'])
 def transcribe():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))
@@ -217,13 +217,13 @@ def update_history():
     return jsonify({"error": "Invalid request"}), 400
 
 
-@app.route('/translate', methods=['POST', 'OPTIONS'])
+@app.route('/translate', methods=['POST', 'OPTION'])
 def translate():
     if request.method == "OPTIONS":
         return add_cors_headers(jsonify({"status": "ok"}))
     data = request.get_json() or {}
     transcribed_text = data.get("transcription")
-
+    print(transcribed_text)
     if not transcribed_text:
         return jsonify({"error": "No transcription provided"}), 400
 
@@ -309,15 +309,14 @@ def agent():
         else:
             del agent_cache[cache_key]
     
-    
-    print(transcription)
-    cache_data_str = json.dumps(agent_cache)
+
+    # cache_data_str = json.dumps(agent_cache)
+    cache_data_str = json.dumps({k: v[0] for k, v in agent_cache.items()})
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
         contents=f"Question:{transcription}. Cache:{cache_data_str}./n Use the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer.",
 
     )
-
     if answer.text:
         agent_cache[cache_key] = (answer.text, current_time)
         return jsonify({"answer": answer.text, "question": transcription}), 200
