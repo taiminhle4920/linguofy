@@ -217,6 +217,9 @@
         height: 200px;
         width: 95%;
     }
+    .recordButton {
+        font-size: small;
+    }
 
     .transcription-box {
         height: 500px;
@@ -230,7 +233,7 @@
 
     .actionButton {
         padding: 10px 20px;
-        font-size: 0.9rem;
+        font-size: small;
     }
 
     .bottomSection {
@@ -240,13 +243,18 @@
 
 @media (max-width: 480px) {
     .visualizer-container {
-        height: 150px;
-        padding: 10px;
+        height: 200px;
+        padding: 30px;
+        margin-bottom: 20px;
+    }
+    .recordButton {
+        font-size: small;
     }
 
     .transcription-box {
         height: 400px;
         padding: 15px;
+
     }
 
     .textArea {
@@ -254,8 +262,7 @@
         padding: 10px;
     }
 
-    .logout-button {
-        padding: 8px 12px;
-        font-size: 0.9rem;
+    .actionButton{
+        font-size: small;
     }
 }
