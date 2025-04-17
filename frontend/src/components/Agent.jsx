@@ -1,15 +1,54 @@
 import React, { useState, useRef } from 'react';
 import './Agent.css';
 import { useEffect } from 'react';
+import { FaVolumeUp, FaStop } from 'react-icons/fa';
+
 
 const Agent = () => {
     const [recording, setRecording] = useState(false);
-    const [transcription, setTranscription] = useState('');
+    const [speaking, setSpeaking] = useState(false);
     const [messages, setMessages] = useState([]);
     const chatWindowRef = useRef(null);
     const [prompt, setPrompt] = useState('');
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
+
+
+    function formatText(text) {
+        text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/(?:^|\n)[\*\-] (.*?)(?=\n|$)/g, '<li>$1</li>');
+        text = text.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+        text = text.replace(/\n{2,}/g, '<br/><br/>');
+        return text;
+    }
+    const speakText = (text) => {
+        if (!('speechSynthesis' in window)) {
+            alert('Text-to-speech not supported in this browser.');
+            return;
+        }
+
+        if (speaking) {
+
+            window.speechSynthesis.cancel();
+            setSpeaking(false);
+        } else {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+
+            utterance.onend = () => {
+                setSpeaking(false);
+            };
+
+            utterance.onerror = () => {
+                setSpeaking(false);
+            };
+
+            window.speechSynthesis.speak(utterance);
+            setSpeaking(true);
+        }
+    };
 
 
     const startRecording = async () => {
@@ -83,6 +122,7 @@ const Agent = () => {
             ...prev,
             { sender: 'user', text: prompt },
         ]);
+        setPrompt("");
         try {
             const response = await fetch("http://127.0.0.1:5000/agenttext", {
                 method: "POST",
@@ -125,15 +165,32 @@ const Agent = () => {
     return (
         <div className="agent-container">
             <div className="agent-transcription">
-                {/* <h2>Server Response:</h2>
-                <p>{transcription}</p> */}
+
                 <div className="agent-transcription chat-window" ref={chatWindowRef}>
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
                             className={`chat-bubble ${msg.sender === 'user' ? 'user' : 'bot'}`}
                         >
-                            {msg.text}
+                            <div className="message-text">
+                                {msg.sender === 'bot' ? (
+                                    <>
+                                        <div
+                                            className="formatted-text"
+                                            dangerouslySetInnerHTML={{ __html: formatText(msg.text) }}
+                                        />
+                                        <button
+                                            className="speak-button"
+                                            onClick={() => speakText(msg.text)}
+                                            title="Play audio"
+                                        >
+                                            {speaking ? <FaStop size={16}  /> : <FaVolumeUp size={16} />}
+                                        </button>
+                                    </>
+                                ) : (
+                                    msg.text
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

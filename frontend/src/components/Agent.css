@@ -124,6 +124,27 @@ body {
     background-color: #007bff;
     border-bottom-left-radius: 4px;
 }
+.chat-bubble.bot {
+    position: relative;
+    display: inline-block;
+}
+
+.speak-button {
+    background: none;
+    color: black;
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    padding: 0;
+}
+.speak-button {
+    opacity: 1;
+}
+
+.speak-button:hover {
+    color: #000;
+    
+}
 
 @media screen and (max-width: 768px) {
     .agent-transcription {

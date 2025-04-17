@@ -262,7 +262,7 @@ def agenttext():
 
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Question: {prompt}. Cache: {cache_data_str}.\nUse the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer."
+        contents=f"Question: {prompt}. Cache: {cache_data_str}.\nUse the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer.Don't yap, answer directly. If the user send additional information for previous answer, then answer it as well."
     )
 
     if answer.text:
@@ -314,7 +314,7 @@ def agent():
     cache_data_str = json.dumps({k: v[0] for k, v in agent_cache.items()})
     answer = googleClient.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Use the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer.",
+        contents=f"Question:{transcription}. Cache:{cache_data_str}./n Use the cache to help you to answer the question if needed. You are an assistant for the user. Don't send the cache in the answer. Don't yap, answer directly. If the user send additional information for previous answer, then answer it as well.",
 
     )
     if answer.text:
