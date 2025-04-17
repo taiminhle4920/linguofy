@@ -168,22 +168,7 @@ body {
 
 @media screen and (max-width: 480px) {
     .chat-window {
-        max-height: 60vh;
-        min-height: 40vh;
-    }
-
-    .agent-footer {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    .agent-input-section {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .agent-send-button {
-        width: 100%;
+        max-height: 75vh;
+        min-height: 75vh;
     }
 }

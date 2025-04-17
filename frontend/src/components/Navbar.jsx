@@ -41,10 +41,12 @@ const Navbar = () => {
 
             <nav className={menuOpen ? "active" : ""}>
                 <div className="nav-top">
-                    <div className="logo-container">
-                        <img src={logo} alt="App Logo" className="logo" />
-                        <span className="logo-text">Linguofy.ai</span>
-                    </div>
+                    {!menuOpen && ( 
+                        <div className="logo-container">
+                            <img src={logo} alt="App Logo" className="logo" />
+                            <span className="logo-text">Linguofy.ai</span>
+                        </div>
+                    )}
                 </div>
                 
                 <div className="nav-middle">
