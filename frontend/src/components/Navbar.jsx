@@ -62,7 +62,7 @@ const Navbar = () => {
                    
                         <div className="sidebar-history-list">
                             {Object.entries(history).length === 0 ? (
-                                <p className="sidebar-history-empty">No history availiable</p>
+                                <p className="sidebar-history-empty">No history available</p>
                             ) : (
                                 Object.entries(history).map(([timestamp, text]) => (
                                     <Link
